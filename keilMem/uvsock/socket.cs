@@ -86,7 +86,8 @@ namespace keilMem.uvsock
             {
                 // Receive the response from the remote device.  
                 int bytesRec = sender.Receive(bytes);
-                Console.WriteLine("Receive = {0}", BitConverter.ToString(bytes,0, bytesRec));
+                Console.WriteLine("Receive = {0}", BitConverter.ToString(bytes, 0, bytesRec));
+                Uvsock.rxProcess(bytes, bytesRec);
             }
         }
     }

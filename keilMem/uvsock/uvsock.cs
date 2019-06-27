@@ -23,6 +23,7 @@ namespace keilMem.uvsock
         public const UInt32 UV_DBG_CALC_EXPRESSION = 0x200A;
         public const UInt32 UV_DBG_MEM_READ = 0x200B;
         public const UInt32 UV_DBG_MEM_WRITE = 0x200C;
+        public const UInt32 UV_CMD_RESPONSE = 0x3000;
 
         public Byte[] sockSendBuffer = new byte[100];
         SocketFlags flags;
@@ -113,6 +114,37 @@ namespace keilMem.uvsock
             public Byte aBytes;
         }
 
+        [StructLayout(LayoutKind.Explicit)]
+        public struct MemReadResponseStruct
+        {
+            [FieldOffset(0)]
+            public UInt32 m_nTotalLen;
+            [FieldOffset(4)]
+            public UInt32 m_eCmd; //UV_CMD_RESPONSE
+            [FieldOffset(8)]
+            public UInt32 m_nBufLen;
+            [FieldOffset(12)]
+            public UInt64 cycles;
+            [FieldOffset(20)]
+            public UInt64 tStamp;
+            [FieldOffset(28)]
+            public UInt32 m_Id;
+
+            [FieldOffset(32)]
+            public UInt32 dataCmd; //UV_DBG_MEM_READ
+            [FieldOffset(36)]
+            public UInt32 notKnow; //0
+
+            [FieldOffset(40)]
+            public UInt64 address;
+            [FieldOffset(48)]
+            public UInt32 dataLength;
+            [FieldOffset(52)]
+            public UInt64 errAddr;
+            [FieldOffset(60)]
+            public UInt32 nErr;
+        } //64Bytes
+
         public void MemRead(UInt64 addr, UInt32 size)
         {
             MemReadStruct memRead = new MemReadStruct();
@@ -139,30 +171,6 @@ namespace keilMem.uvsock
             SocketClient.sender.Send(sockSendBuffer, data.Length, flags);
         }
 
-        //public byte[] MemRead(UInt64 addr, UInt32 size)
-        //{
-        //    Amem ma = new Amem();
-        //    ma.nAddr = addr;
-        //    ma.nBytes = size;
-
-        //    UVSOCK_CMD.m_eCmd = UV_DBG_MEM_READ;
-        //    UVSOCK_CMD.m_nBufLen = 25;
-        //    UVSOCK_CMD.m_nTotalLen = (UInt32)(32 + UVSOCK_CMD.m_nBufLen);
-        //    UVSOCK_CMD.cycles = 0;
-        //    UVSOCK_CMD.tStamp = 0;
-
-        //    byte[] data = getBytes(ref ma);
-        //    byte[] padding = new byte[1];
-        //    padding[0] = 0;
-
-        //    byte[] head = getBytes(ref UVSOCK_CMD);
-
-        //    byte[] re = new byte[head.Length + data.Length+1];
-        //    head.CopyTo(re, 0);
-        //    data.CopyTo(re, head.Length);
-        //    padding.CopyTo(re, head.Length + data.Length);
-        //    return re;
-        //}
         public byte[] getBytes<T>(ref T str)
         {
             int size = Marshal.SizeOf(str);
@@ -185,6 +193,49 @@ namespace keilMem.uvsock
             Marshal.Copy(ptr, arr, 0, size);
             Marshal.FreeHGlobal(ptr);
             return arr;
+        }
+        public static void rxProcess(Byte[] data,int length)
+        {
+            UInt32 totalLen = BitConverter.ToUInt32(data, 0);
+            if(data.Length < totalLen)
+            {
+                return;
+            }
+            UInt32 cmd = BitConverter.ToUInt32(data, 4);
+            UInt32 dataLength = BitConverter.ToUInt32(data, 8);
+            UInt64 cycles = BitConverter.ToUInt64(data, 12);
+            UInt64 tStamp = BitConverter.ToUInt64(data, 20);
+            UInt32 idwhat = BitConverter.ToUInt32(data, 28);
+            UInt32 cmdData = BitConverter.ToUInt32(data, 32);
+            UInt32 whatTheFuck = BitConverter.ToUInt32(data, 36);
+            UInt64 address = BitConverter.ToUInt64(data, 40);
+            UInt32 dataSize = BitConverter.ToUInt32(data, 48);
+            UInt64 whatTheFuck2 = BitConverter.ToUInt64(data, 52);
+            UInt32 whatTheFuck3 = BitConverter.ToUInt32(data, 60);
+            //mem data
+            Byte[] MemData = data.Skip(64).Take((int)dataSize).ToArray();
+
+            //unsigned short
+            for(int i=0;i< (int)dataSize/2;i++)
+            {
+                UInt16 d = BitConverter.ToUInt16(MemData,i*2);
+
+                Console.WriteLine("rx:{0}", String.Format("0x{0:X}", d));
+            }
+        }
+        MemReadResponseStruct ByteArrayToMemReadResponse(byte[] bytes)
+        {
+            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+            MemReadResponseStruct stuff;
+            try
+            {
+                stuff = (MemReadResponseStruct)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(MemReadResponseStruct));
+            }
+            finally
+            {
+                handle.Free();
+            }
+            return stuff;
         }
     }
 }
