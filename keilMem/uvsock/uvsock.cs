@@ -28,6 +28,9 @@ namespace keilMem.uvsock
         public Byte[] sockSendBuffer = new byte[100];
         SocketFlags flags;
 
+        public static int curDataTypeIndex = 0;
+        public static int[] dataTypeSize = new int[8] { 1, 2, 4, 1, 2, 4, 4, 8 };
+
         [StructLayout(LayoutKind.Explicit)]
         public struct _tag_UVSOCK_CMD
         {
@@ -145,8 +148,10 @@ namespace keilMem.uvsock
             public UInt32 nErr;
         } //64Bytes
 
-        public void MemRead(UInt64 addr, UInt32 size)
+        public void MemRead(UInt64 addr, UInt32 size,int dataTypeIndex)
         {
+            curDataTypeIndex = dataTypeIndex;
+
             MemReadStruct memRead = new MemReadStruct();
 
             memRead.m_nTotalLen = 0x39;
@@ -216,26 +221,58 @@ namespace keilMem.uvsock
             Byte[] MemData = data.Skip(64).Take((int)dataSize).ToArray();
 
             //unsigned short
-            for(int i=0;i< (int)dataSize/2;i++)
+            for(int i=0;i< (int)dataSize/ dataTypeSize[curDataTypeIndex]; i++)
             {
-                UInt16 d = BitConverter.ToUInt16(MemData,i*2);
-
-                Console.WriteLine("rx:{0}", String.Format("0x{0:X}", d));
+                switch (curDataTypeIndex)
+                {
+                    case 0://unsigned char
+                        Byte var0 = MemData[i * dataTypeSize[curDataTypeIndex]];
+                        Console.WriteLine("rx:{0}", var0.ToString());
+                        break;
+                    case 1://unsigned short
+                        UInt16 var1 = BitConverter.ToUInt16(MemData, i * dataTypeSize[curDataTypeIndex]);
+                        Console.WriteLine("rx:{0}", String.Format("0x{0:X}", var1));
+                        break;
+                    case 2://unsigned int
+                        UInt32 var2 = BitConverter.ToUInt32(MemData, i * dataTypeSize[curDataTypeIndex]);
+                        Console.WriteLine("rx:{0}", String.Format("0x{0:X}", var2));
+                        break;
+                    case 3://char
+                        char var3 = (char)MemData[i * dataTypeSize[curDataTypeIndex]];
+                        Console.WriteLine("rx:{0}", var3);
+                        break;
+                    case 4://short
+                        Int16 var4 = BitConverter.ToInt16(MemData, i * dataTypeSize[curDataTypeIndex]);
+                        Console.WriteLine("rx:{0}",  var4);
+                        break;
+                    case 5://int
+                        Int32 var5 = BitConverter.ToInt32(MemData, i * dataTypeSize[curDataTypeIndex]);
+                        Console.WriteLine("rx:{0}", var5);
+                        break;
+                    case 6://float
+                        float var6 = BitConverter.ToSingle(MemData, i * dataTypeSize[curDataTypeIndex]);
+                        Console.WriteLine("rx:{0}", var6);
+                        break;
+                    case 7://double
+                        double var7 = BitConverter.ToDouble(MemData, i * dataTypeSize[curDataTypeIndex]);
+                        Console.WriteLine("rx:{0}", var7);
+                        break;
+                }
             }
         }
-        MemReadResponseStruct ByteArrayToMemReadResponse(byte[] bytes)
-        {
-            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-            MemReadResponseStruct stuff;
-            try
-            {
-                stuff = (MemReadResponseStruct)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(MemReadResponseStruct));
-            }
-            finally
-            {
-                handle.Free();
-            }
-            return stuff;
-        }
+        //MemReadResponseStruct ByteArrayToMemReadResponse(byte[] bytes)
+        //{
+        //    GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        //    MemReadResponseStruct stuff;
+        //    try
+        //    {
+        //        stuff = (MemReadResponseStruct)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(MemReadResponseStruct));
+        //    }
+        //    finally
+        //    {
+        //        handle.Free();
+        //    }
+        //    return stuff;
+        //}
     }
 }

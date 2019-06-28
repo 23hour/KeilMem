@@ -30,7 +30,7 @@
                 <Button Name="BtnConnect" Content="连接"  MinWidth="200" HorizontalAlignment="Left" VerticalAlignment="Center"  Height="33" Click="BtnConnect_clicked"/>
             </Grid>
         </Grid>
-        
+
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200" />
@@ -48,6 +48,8 @@
                 <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="100" />
                 <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="100" />
+                <ColumnDefinition Width="200" />
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">
@@ -57,6 +59,21 @@
                 <TextBox Name="TextSize" Text="2" VerticalContentAlignment="Center" HorizontalAlignment="Left" MinWidth="260" Height="33" TextWrapping="Wrap" VerticalAlignment="Center"/>
             </Grid>
             <Grid Grid.Column="2">
+                <ComboBox Name="DataType"  SelectedIndex="1" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Height="30"  Width="191" Margin="0,2,2,10" FontSize="16">
+                    <ComboBoxItem>unsigned char</ComboBoxItem>
+                    <ComboBoxItem>unsigned short</ComboBoxItem>
+                    <ComboBoxItem>unsigned int</ComboBoxItem>
+                    <ComboBoxItem>char</ComboBoxItem>
+                    <ComboBoxItem>short</ComboBoxItem>
+                    <ComboBoxItem>int</ComboBoxItem>
+                    <ComboBoxItem>float</ComboBoxItem>
+                    <ComboBoxItem>double</ComboBoxItem>
+                </ComboBox>
+            </Grid>
+            <Grid Grid.Column="3">
+                <TextBox Name="TextUpdateInterval" Text="1" VerticalContentAlignment="Center" HorizontalAlignment="Left" MinWidth="100" Height="33" TextWrapping="Wrap" VerticalAlignment="Center"/>
+            </Grid>
+            <Grid Grid.Column="4">
                 <Button Name="BtnMemREAD" Content="Memery Read"  MinWidth="200" HorizontalAlignment="Left" VerticalAlignment="Center"  Height="33" Click="BtnMemREAD_clicked"/>
             </Grid>
         </Grid>

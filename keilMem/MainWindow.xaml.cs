@@ -50,12 +50,21 @@ namespace keilMem
         {
             string addrStr = this.TextAddr.Text;
             string sizeStr = this.TextSize.Text;
+            string tInterval = this.TextUpdateInterval.Text;
 
             UInt64 addr_64 = (UInt64)Convert.ToInt32(addrStr, 16);
             UInt32 size_32 = (UInt32)Int32.Parse(sizeStr);
+            int interval = int.Parse(tInterval); //interval time 
 
-            uv.MemRead(addr_64, size_32);
+            int dataTypeIndex = DataType.SelectedIndex;
+
+
+            uv.MemRead(addr_64, size_32, dataTypeIndex);
         }
-    }
+
    
+
+
+
+    }
 }
