@@ -1,4 +1,5 @@
-﻿using keilMem.uvsock;
+﻿using InteractiveDataDisplay.WPF;
+using keilMem.uvsock;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace keilMem
 {
@@ -23,14 +25,35 @@ namespace keilMem
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static MainWindow Current;
+
         Uvsock uv = new Uvsock();
         Byte[] sendBuffer;
         SocketFlags flags;
 
+        const int dataSize = 500;
+        private Queue<double> dataQueue0 = new Queue<double>(dataSize);
+        LineGraph linegraph0 = new LineGraph();
+
+        int counter = 0;
+
+        DispatcherTimer timer = new DispatcherTimer();
+
+        UInt64 addr_64; //地址
+        UInt32 size_32; //总大小 字节
+        int interval; //读取间隔时间 ms
+        int dataTypeIndex; //数据类型索引
+
+
         public MainWindow()
         {
             InitializeComponent();
-            
+            Current = this;
+
+            lines.Children.Add(linegraph0);
+            linegraph0.Stroke = new SolidColorBrush(Color.FromArgb(255, 0, 155, 0));
+            //linegraph0.Description = String.Format("Channel 'open'");
+            linegraph0.StrokeThickness = 2;
         }
 
         private void BtnConnect_clicked(object sender, RoutedEventArgs e)
@@ -48,23 +71,57 @@ namespace keilMem
 
         private void BtnMemREAD_clicked(object sender, RoutedEventArgs e)
         {
+            if (timer.IsEnabled)
+            {
+                timer.Stop();
+                this.BtnMemREAD.Content = "Memery Read";
+                return;
+            }
+
             string addrStr = this.TextAddr.Text;
             string sizeStr = this.TextSize.Text;
             string tInterval = this.TextUpdateInterval.Text;
 
-            UInt64 addr_64 = (UInt64)Convert.ToInt32(addrStr, 16);
-            UInt32 size_32 = (UInt32)Int32.Parse(sizeStr);
-            int interval = int.Parse(tInterval); //interval time 
+            addr_64 = (UInt64)Convert.ToInt32(addrStr, 16);
+            size_32 = (UInt32)Int32.Parse(sizeStr);
+            interval = int.Parse(tInterval); //interval time 
 
-            int dataTypeIndex = DataType.SelectedIndex;
+            dataTypeIndex = DataType.SelectedIndex;
 
+            if (interval > 0)
+            {
+                timer = new DispatcherTimer();
+                timer.Tick += TimerTick;
+                timer.Interval = TimeSpan.FromMilliseconds(interval);
+                timer.Start();
 
+                this.BtnMemREAD.Content = "STOP";
+            }
+            else {
+                uv.MemRead(addr_64, size_32, dataTypeIndex);
+            }
+        }
+
+        private void TimerTick(object sender, EventArgs e)
+        {
             uv.MemRead(addr_64, size_32, dataTypeIndex);
         }
 
-   
+        public async void UpdateChart(double value0)
+        {
+            counter++;
 
+            if (dataQueue0.Count > (dataSize - 1))
+            {
+                dataQueue0.Dequeue();
+            }
+            dataQueue0.Enqueue(value0);
 
+            await Dispatcher.InvokeAsync(() =>
+            {
+                linegraph0.PlotY(dataQueue0.ToArray());
+            });
+        }
 
     }
 }
