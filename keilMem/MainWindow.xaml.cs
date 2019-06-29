@@ -104,7 +104,8 @@ namespace keilMem
             await Dispatcher.InvokeAsync(() =>
             {
                 this.BtnConnect.IsEnabled = true; //可重新连接
-                this.ConnectImg.Source = new BitmapImage(new Uri(@"Image/break.png", UriKind.Relative));
+                this.ConnectImg.Source = new BitmapImage(new Uri(@"Image/break2.png", UriKind.Relative));
+                this.BtnMemREAD.IsEnabled = false;
             });
         }
 

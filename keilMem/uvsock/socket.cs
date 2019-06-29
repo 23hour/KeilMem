@@ -81,7 +81,7 @@ namespace keilMem.uvsock
         {
             while(true)
             {
-                if (!sender.Connected)
+                if (!SocketConnected(sender))
                 {
                     // Release the socket.  
                     sender.Shutdown(SocketShutdown.Both);
@@ -91,11 +91,22 @@ namespace keilMem.uvsock
                 }
                 // Receive the response from the remote device.  
                 int bytesRec = sender.Receive(bytes);
-                Console.WriteLine("sender.Connected:{0}", sender.Connected);
-                Thread.Sleep(500);
+                //Console.WriteLine("sender.Connected:{0}", sender.Connected);
+                //Thread.Sleep(500);
                 Console.WriteLine("Receive = {0}", BitConverter.ToString(bytes, 0, bytesRec));
                 Uvsock.rxProcess(bytes, bytesRec);
             }
         }
+
+        private static bool SocketConnected(Socket s)
+        {
+            bool part1 = s.Poll(1000, SelectMode.SelectRead);
+            bool part2 = (s.Available == 0);
+            if (part1 && part2)
+                return false;
+            else
+                return true;
+        }
+
     }
 }
