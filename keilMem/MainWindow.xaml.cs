@@ -129,6 +129,8 @@ namespace keilMem
             string sizeStr = this.TextSize.Text;
             string tInterval = this.TextUpdateInterval.Text;
 
+            linegraph0.Description = String.Format(addrStr);
+
             addr_64 = (UInt64)Convert.ToInt32(addrStr, 16);
             size_32 = (UInt32)Int32.Parse(sizeStr);
             interval = int.Parse(tInterval); //interval time 
