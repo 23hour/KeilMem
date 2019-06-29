@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,6 +14,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -58,8 +60,43 @@ namespace keilMem
 
         private void BtnConnect_clicked(object sender, RoutedEventArgs e)
         {
-            SocketClient.StartClient();
+            this.ConnectStatus.Visibility = Visibility.Hidden;
+            this.ConnectImg.Source = new BitmapImage(new Uri(@"Image/waitting.png", UriKind.Relative));
+            this.ConnectImg.Visibility = Visibility.Visible;
+            ((Storyboard)FindResource("ConnectStoryboard")).Begin();
 
+            //SocketClient.StartClient();
+
+            //启动连接线程
+            Thread connThread = new Thread(SocketClient.StartClient);
+            connThread.Start();
+
+            this.BtnConnect.IsEnabled = false;
+        }
+
+        //更新UI - 连接成功
+        public async void connectDone()
+        {
+            await Dispatcher.InvokeAsync(() =>
+            {
+                ((Storyboard)FindResource("ConnectStoryboard")).Stop();
+                this.ConnectImg.Source = new BitmapImage(new Uri(@"Image/done2.png", UriKind.Relative));
+                this.BtnMemREAD.IsEnabled = true;
+            });
+        }
+        //更新UI - 连接失败
+        public async void connectError(string errStr)
+        {
+            await Dispatcher.InvokeAsync(() =>
+            {
+                this.ConnectStatus.Text = "Error Message:"+errStr;
+                this.ConnectStatus.Visibility = Visibility.Visible;
+
+                this.BtnConnect.IsEnabled = true; //可重新连接
+
+                ((Storyboard)FindResource("ConnectStoryboard")).Stop();
+                this.ConnectImg.Source = new BitmapImage(new Uri(@"Image/error.png", UriKind.Relative));
+            });
         }
 
         private void BtnGetVersion_clicked(object sender, RoutedEventArgs e)

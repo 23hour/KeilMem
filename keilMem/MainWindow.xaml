@@ -8,10 +8,21 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
 
+    <Window.Resources>
+        <Storyboard x:Key="ConnectStoryboard">
+            <DoubleAnimation
+            Storyboard.TargetName="ConnectImg"
+            Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+            From="0"
+            To="360"
+            BeginTime="0:0:0"
+            Duration="0:0:2"
+            RepeatBehavior="Forever" />
+        </Storyboard>
+    </Window.Resources>
+    
     <DockPanel Width="Auto" Height="Auto" LastChildFill="True">
      
-       
-      
         <StackPanel Width="Auto" Height="100" Background="LightGray" Orientation="Vertical" DockPanel.Dock="Top" >
             <!--连接-->
             <StackPanel Width="Auto" Height="50" Background="LightGray" Orientation="Horizontal" >
@@ -20,6 +31,12 @@
                 <Label Width="Auto" Height="Auto" Content="Port" FontFamily="Arial" FontSize="16" VerticalContentAlignment="Center" HorizontalAlignment="Left"/>
                 <TextBox Name="TextPort" Text="4823" VerticalContentAlignment="Center" HorizontalAlignment="Left" MinWidth="50" Height="Auto" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16"/>
                 <Button Name="BtnConnect" Content="连接"  MinWidth="100" HorizontalAlignment="Left" VerticalAlignment="Center"  Height="Auto" Click="BtnConnect_clicked" Margin="10,0,0,0" FontSize="16"/>
+                <Image Name="ConnectImg" Visibility="Hidden" Source="Image\waitting.png" RenderTransformOrigin="0.5, 0.5" Height="20" Margin="10" UseLayoutRounding="True" RenderOptions.BitmapScalingMode ="HighQuality">
+                    <Image.RenderTransform>
+                        <RotateTransform Angle="0" />
+                    </Image.RenderTransform>
+                </Image>
+                <TextBox Name="ConnectStatus" Width="100" Height="20" Text="连接失败" Visibility="Hidden" FontFamily="Arial" FontSize="14" Foreground="Gray" Background="LightGray"  VerticalContentAlignment="Center" HorizontalAlignment="Left"/>
             </StackPanel>
             <!--读取-->
             <StackPanel Width="Auto" Height="50" Background="LightSlateGray" Orientation="Horizontal" >
@@ -40,7 +57,7 @@
                 </ComboBox>
                 <Label Width="Auto" Height="Auto" Content="间隔(ms)" FontFamily="Arial" FontSize="16" VerticalContentAlignment="Center" HorizontalAlignment="Left"/>
                 <TextBox Name="TextUpdateInterval" Text="100" VerticalContentAlignment="Center" HorizontalAlignment="Left" MinWidth="80" Height="Auto" TextWrapping="Wrap" VerticalAlignment="Center" FontSize="16"/>
-                <Button Name="BtnMemREAD" Content="Memery Read"  MinWidth="100" HorizontalAlignment="Center" VerticalAlignment="Center"  Height="Auto" Click="BtnMemREAD_clicked" Margin="10,0,0,0" FontSize="16"/>
+                <Button Name="BtnMemREAD" Content="Memery Read" IsEnabled="False" MinWidth="100" HorizontalAlignment="Center" VerticalAlignment="Center"  Height="Auto" Click="BtnMemREAD_clicked" Margin="10,0,0,0" FontSize="16"/>
             </StackPanel>
         </StackPanel>
         
