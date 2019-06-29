@@ -98,6 +98,15 @@ namespace keilMem
                 this.ConnectImg.Source = new BitmapImage(new Uri(@"Image/error.png", UriKind.Relative));
             });
         }
+        //更新UI - 连接断开
+        public async void connectBreak()
+        {
+            await Dispatcher.InvokeAsync(() =>
+            {
+                this.BtnConnect.IsEnabled = true; //可重新连接
+                this.ConnectImg.Source = new BitmapImage(new Uri(@"Image/break.png", UriKind.Relative));
+            });
+        }
 
         private void BtnGetVersion_clicked(object sender, RoutedEventArgs e)
         {

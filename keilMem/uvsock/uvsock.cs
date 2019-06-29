@@ -208,67 +208,74 @@ namespace keilMem.uvsock
             {
                 return;
             }
-            UInt32 cmd = BitConverter.ToUInt32(data, 4);
-            UInt32 dataLength = BitConverter.ToUInt32(data, 8);
-            UInt64 cycles = BitConverter.ToUInt64(data, 12);
-            UInt64 tStamp = BitConverter.ToUInt64(data, 20);
-            UInt32 idwhat = BitConverter.ToUInt32(data, 28);
-            UInt32 cmdData = BitConverter.ToUInt32(data, 32);
-            UInt32 whatTheFuck = BitConverter.ToUInt32(data, 36);
-            UInt64 address = BitConverter.ToUInt64(data, 40);
-            UInt32 dataSize = BitConverter.ToUInt32(data, 48);
-            UInt64 whatTheFuck2 = BitConverter.ToUInt64(data, 52);
-            UInt32 whatTheFuck3 = BitConverter.ToUInt32(data, 60);
-            //mem data
-            Byte[] MemData = data.Skip(64).Take((int)dataSize).ToArray();
-
-            //unsigned short
-            for(int i=0;i< (int)dataSize/ dataTypeSize[curDataTypeIndex]; i++)
+            if (totalLen > 36)
             {
-                switch (curDataTypeIndex)
+                if (BitConverter.ToUInt32(data, 32) == UV_DBG_MEM_READ)
                 {
-                    case 0://unsigned char
-                        Byte var0 = MemData[i * dataTypeSize[curDataTypeIndex]];
-                        Console.WriteLine("rx:{0}", var0.ToString());
-                        mainPage.UpdateChart((double)var0);
-                        break;
-                    case 1://unsigned short
-                        UInt16 var1 = BitConverter.ToUInt16(MemData, i * dataTypeSize[curDataTypeIndex]);
-                        Console.WriteLine("rx:{0}", String.Format("0x{0:X}", var1));
-                        mainPage.UpdateChart((double)var1);
-                        break;
-                    case 2://unsigned int
-                        UInt32 var2 = BitConverter.ToUInt32(MemData, i * dataTypeSize[curDataTypeIndex]);
-                        Console.WriteLine("rx:{0}", String.Format("0x{0:X}", var2));
-                        mainPage.UpdateChart((double)var2);
-                        break;
-                    case 3://char
-                        char var3 = (char)MemData[i * dataTypeSize[curDataTypeIndex]];
-                        Console.WriteLine("rx:{0}", var3);
-                        mainPage.UpdateChart((double)var3);
-                        break;
-                    case 4://short
-                        Int16 var4 = BitConverter.ToInt16(MemData, i * dataTypeSize[curDataTypeIndex]);
-                        Console.WriteLine("rx:{0}",  var4);
-                        mainPage.UpdateChart((double)var4);
-                        break;
-                    case 5://int
-                        Int32 var5 = BitConverter.ToInt32(MemData, i * dataTypeSize[curDataTypeIndex]);
-                        Console.WriteLine("rx:{0}", var5);
-                        mainPage.UpdateChart((double)var5);
-                        break;
-                    case 6://float
-                        float var6 = BitConverter.ToSingle(MemData, i * dataTypeSize[curDataTypeIndex]);
-                        Console.WriteLine("rx:{0}", var6);
-                        mainPage.UpdateChart((double)var6);
-                        break;
-                    case 7://double
-                        double var7 = BitConverter.ToDouble(MemData, i * dataTypeSize[curDataTypeIndex]);
-                        Console.WriteLine("rx:{0}", var7);
-                        mainPage.UpdateChart((double)var7);
-                        break;
+                    UInt32 cmd = BitConverter.ToUInt32(data, 4);
+                    UInt32 dataLength = BitConverter.ToUInt32(data, 8);
+                    UInt64 cycles = BitConverter.ToUInt64(data, 12);
+                    UInt64 tStamp = BitConverter.ToUInt64(data, 20);
+                    UInt32 idwhat = BitConverter.ToUInt32(data, 28);
+                    UInt32 cmdData = BitConverter.ToUInt32(data, 32);
+                    UInt32 whatTheFuck = BitConverter.ToUInt32(data, 36);
+                    UInt64 address = BitConverter.ToUInt64(data, 40);
+                    UInt32 dataSize = BitConverter.ToUInt32(data, 48);
+                    UInt64 whatTheFuck2 = BitConverter.ToUInt64(data, 52);
+                    UInt32 whatTheFuck3 = BitConverter.ToUInt32(data, 60);
+                    //mem data
+                    Byte[] MemData = data.Skip(64).Take((int)dataSize).ToArray();
+
+                    //unsigned short
+                    for (int i = 0; i < (int)dataSize / dataTypeSize[curDataTypeIndex]; i++)
+                    {
+                        switch (curDataTypeIndex)
+                        {
+                            case 0://unsigned char
+                                Byte var0 = MemData[i * dataTypeSize[curDataTypeIndex]];
+                                Console.WriteLine("rx:{0}", var0.ToString());
+                                mainPage.UpdateChart((double)var0);
+                                break;
+                            case 1://unsigned short
+                                UInt16 var1 = BitConverter.ToUInt16(MemData, i * dataTypeSize[curDataTypeIndex]);
+                                Console.WriteLine("rx:{0}", String.Format("0x{0:X}", var1));
+                                mainPage.UpdateChart((double)var1);
+                                break;
+                            case 2://unsigned int
+                                UInt32 var2 = BitConverter.ToUInt32(MemData, i * dataTypeSize[curDataTypeIndex]);
+                                Console.WriteLine("rx:{0}", String.Format("0x{0:X}", var2));
+                                mainPage.UpdateChart((double)var2);
+                                break;
+                            case 3://char
+                                char var3 = (char)MemData[i * dataTypeSize[curDataTypeIndex]];
+                                Console.WriteLine("rx:{0}", var3);
+                                mainPage.UpdateChart((double)var3);
+                                break;
+                            case 4://short
+                                Int16 var4 = BitConverter.ToInt16(MemData, i * dataTypeSize[curDataTypeIndex]);
+                                Console.WriteLine("rx:{0}", var4);
+                                mainPage.UpdateChart((double)var4);
+                                break;
+                            case 5://int
+                                Int32 var5 = BitConverter.ToInt32(MemData, i * dataTypeSize[curDataTypeIndex]);
+                                Console.WriteLine("rx:{0}", var5);
+                                mainPage.UpdateChart((double)var5);
+                                break;
+                            case 6://float
+                                float var6 = BitConverter.ToSingle(MemData, i * dataTypeSize[curDataTypeIndex]);
+                                Console.WriteLine("rx:{0}", var6);
+                                mainPage.UpdateChart((double)var6);
+                                break;
+                            case 7://double
+                                double var7 = BitConverter.ToDouble(MemData, i * dataTypeSize[curDataTypeIndex]);
+                                Console.WriteLine("rx:{0}", var7);
+                                mainPage.UpdateChart((double)var7);
+                                break;
+                        }
+                    }
                 }
             }
+           
         }
         //MemReadResponseStruct ByteArrayToMemReadResponse(byte[] bytes)
         //{

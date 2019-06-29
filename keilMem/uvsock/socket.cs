@@ -81,8 +81,18 @@ namespace keilMem.uvsock
         {
             while(true)
             {
+                if (!sender.Connected)
+                {
+                    // Release the socket.  
+                    sender.Shutdown(SocketShutdown.Both);
+                    sender.Close();
+                    mainPage.connectBreak();
+                    return;
+                }
                 // Receive the response from the remote device.  
                 int bytesRec = sender.Receive(bytes);
+                Console.WriteLine("sender.Connected:{0}", sender.Connected);
+                Thread.Sleep(500);
                 Console.WriteLine("Receive = {0}", BitConverter.ToString(bytes, 0, bytesRec));
                 Uvsock.rxProcess(bytes, bytesRec);
             }
